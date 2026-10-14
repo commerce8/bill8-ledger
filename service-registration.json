@@ -1,0 +1,20 @@
+{
+  "vertical": "bill8",
+  "services": [
+    {
+      "service_type": "bill8:ledger",
+      "event_triggers": [
+        {
+          "event_type": "sentin8:sys:service:updated",
+          "consumer_group": "bill8:ledger:envinit",
+          "action": "seed_internal_accounts"
+        },
+        {
+          "event_type": "sentin8:cron:tick",
+          "consumer_group": "bill8:ledger:payout-schedules",
+          "action": "run_payout_schedules"
+        }
+      ]
+    }
+  ]
+}
