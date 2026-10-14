@@ -14,25 +14,23 @@ use crate::handlers;
 
 /// The ledger's OpenAPI document.
 #[derive(OpenApi)]
-#[openapi(
-    paths(
-        handlers::accounts::create_account,
-        handlers::accounts::list_accounts,
-        handlers::balances::list_balances,
-        handlers::balances::get_balance,
-        handlers::transactions::post_transaction,
-        handlers::transactions::list_transactions,
-        handlers::payouts::create_payout,
-        handlers::payouts::list_payouts,
-        handlers::payouts::get_payout,
-        handlers::transfers::create_transfer,
-        handlers::transfers::list_transfers,
-        handlers::transfers::upsert_fee,
-        handlers::fees::list_fees,
-        handlers::payout_schedules::create_payout_schedule,
-        handlers::payout_schedules::list_payout_schedules,
-        handlers::payout_schedules::delete_payout_schedule,
-        handlers::payout_schedules::run_payout_schedules,
-    )
-)]
+#[openapi(paths(
+    handlers::accounts::create_account,
+    handlers::accounts::list_accounts,
+    handlers::balances::list_balances,
+    handlers::balances::get_balance,
+    handlers::transactions::post_transaction,
+    handlers::transactions::list_transactions,
+    handlers::payouts::create_payout,
+    handlers::payouts::list_payouts,
+    handlers::payouts::get_payout,
+    handlers::transfers::create_transfer,
+    handlers::transfers::list_transfers,
+    handlers::transfers::upsert_fee,
+    handlers::fees::list_fees,
+    handlers::payout_schedules::create_payout_schedule,
+    handlers::payout_schedules::list_payout_schedules,
+    handlers::payout_schedules::delete_payout_schedule,
+    handlers::payout_schedules::run_payout_schedules,
+))]
 pub struct LedgerOpenApi;

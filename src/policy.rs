@@ -9,7 +9,9 @@
 //! gate handlers call. See `services/ledger/DESIGN.md` §5.
 
 #[allow(unused_imports)]
-pub use sentin8::shield::runtime::{check_policy, engine_for, policy_bus_client, request_ctx, spawn_hot_reload};
+pub use sentin8::shield::runtime::{
+    check_policy, engine_for, policy_bus_client, request_ctx, spawn_hot_reload,
+};
 pub use sentin8::shield::PolicyEngine as Engine;
 
 /// Step 5 for the ledger: verify (steps 1–4) already ran; evaluate + 403

@@ -13,11 +13,11 @@
 
 pub mod accounts;
 pub mod balances;
+pub mod fees;
 pub mod payout_schedules;
 pub mod payouts;
 pub mod transactions;
 pub mod transfers;
-pub mod fees;
 
 use std::sync::Arc;
 
@@ -71,7 +71,8 @@ pub async fn emit_event(
     payload: serde_json::Value,
 ) {
     if let Err(e) =
-        sentin8::bus::outbox::insert_outbox_row_pool(pool, env_id, "ledger", event_type, &payload).await
+        sentin8::bus::outbox::insert_outbox_row_pool(pool, env_id, "ledger", event_type, &payload)
+            .await
     {
         tracing::warn!(error = %e, event_type, "bill8:ledger: failed to emit outbox event");
     }

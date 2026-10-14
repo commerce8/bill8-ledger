@@ -14,15 +14,13 @@ use sentin8::registration::{
 };
 use utoipa::OpenApi;
 
-const PG_ROLES: &[PgRole] = &[
-    PgRole {
-        scope: "bill8:ledger:read,bill8:ledger:write",
-        role: "bill8_ledger_service",
-        bypass_rls: false,
-        database: "bill8",
-        cross_schema_grants: &[],
-    },
-];
+const PG_ROLES: &[PgRole] = &[PgRole {
+    scope: "bill8:ledger:read,bill8:ledger:write",
+    role: "bill8_ledger_service",
+    bypass_rls: false,
+    database: "bill8",
+    cross_schema_grants: &[],
+}];
 
 /// Workload scope grants — one entry per workload this service registers.
 /// The ledger holds no cross-service reads of its own: payments/billing/
@@ -66,35 +64,126 @@ const M2M_GRANTS: &[M2mGrant] = &[
 ];
 
 const ADMIN_SCOPES: &[AdminScope] = &[
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:accounts:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:accounts:write" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:balances:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:balance-transactions:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:balance-transactions:write" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:payouts:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:payouts:write" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:transfers:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:transfers:write" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:fees:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:fees:write" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:policy:read" },
-    AdminScope::Typed { role: "bill8:ledger:admin", scope: "bill8:ledger:policy:write" },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:accounts:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:accounts:write",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:balances:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:balance-transactions:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:balance-transactions:write",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:payouts:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:payouts:write",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:transfers:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:transfers:write",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:fees:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:fees:write",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:policy:read",
+    },
+    AdminScope::Typed {
+        role: "bill8:ledger:admin",
+        scope: "bill8:ledger:policy:write",
+    },
 ];
 
 const ERROR_CODES: &[ErrorCode] = &[
-    ErrorCode { enum_name: "LedgerBalanceNotFound", error_code: "ledger_balance_not_found", status_code: 404 },
-    ErrorCode { enum_name: "LedgerImbalanced", error_code: "ledger_imbalanced", status_code: 422 },
-    ErrorCode { enum_name: "LedgerInsufficientFunds", error_code: "ledger_insufficient_funds", status_code: 422 },
-    ErrorCode { enum_name: "LedgerIllegalTransition", error_code: "ledger_illegal_transition", status_code: 422 },
+    ErrorCode {
+        enum_name: "LedgerBalanceNotFound",
+        error_code: "ledger_balance_not_found",
+        status_code: 404,
+    },
+    ErrorCode {
+        enum_name: "LedgerImbalanced",
+        error_code: "ledger_imbalanced",
+        status_code: 422,
+    },
+    ErrorCode {
+        enum_name: "LedgerInsufficientFunds",
+        error_code: "ledger_insufficient_funds",
+        status_code: 422,
+    },
+    ErrorCode {
+        enum_name: "LedgerIllegalTransition",
+        error_code: "ledger_illegal_transition",
+        status_code: 422,
+    },
 ];
 
 const ADMIN_UI_PAGES: &[AdminUiPage] = &[
-    AdminUiPage { route: "overview", label: "Overview", ui_endpoint: "/v1/admin/ui/overview", data_endpoint: "/v1/admin/overview", icon: "0xe1b1" },
-    AdminUiPage { route: "accounts", label: "Accounts", ui_endpoint: "/v1/admin/ui/accounts", data_endpoint: "/v1/admin/accounts", icon: "0xe040" },
-    AdminUiPage { route: "balances", label: "Balances", ui_endpoint: "/v1/admin/ui/balances", data_endpoint: "/v1/admin/balances", icon: "0xe083" },
-    AdminUiPage { route: "transactions", label: "Transactions", ui_endpoint: "/v1/admin/ui/transactions", data_endpoint: "/v1/admin/transactions", icon: "0xe53e" },
-    AdminUiPage { route: "payouts", label: "Payouts", ui_endpoint: "/v1/admin/ui/payouts", data_endpoint: "/v1/admin/payouts", icon: "0xe8af" },
-    AdminUiPage { route: "fees", label: "Fee Model", ui_endpoint: "/v1/admin/ui/fees", data_endpoint: "/v1/admin/fees", icon: "0xe263" },
+    AdminUiPage {
+        route: "overview",
+        label: "Overview",
+        ui_endpoint: "/v1/admin/ui/overview",
+        data_endpoint: "/v1/admin/overview",
+        icon: "0xe1b1",
+    },
+    AdminUiPage {
+        route: "accounts",
+        label: "Accounts",
+        ui_endpoint: "/v1/admin/ui/accounts",
+        data_endpoint: "/v1/admin/accounts",
+        icon: "0xe040",
+    },
+    AdminUiPage {
+        route: "balances",
+        label: "Balances",
+        ui_endpoint: "/v1/admin/ui/balances",
+        data_endpoint: "/v1/admin/balances",
+        icon: "0xe083",
+    },
+    AdminUiPage {
+        route: "transactions",
+        label: "Transactions",
+        ui_endpoint: "/v1/admin/ui/transactions",
+        data_endpoint: "/v1/admin/transactions",
+        icon: "0xe53e",
+    },
+    AdminUiPage {
+        route: "payouts",
+        label: "Payouts",
+        ui_endpoint: "/v1/admin/ui/payouts",
+        data_endpoint: "/v1/admin/payouts",
+        icon: "0xe8af",
+    },
+    AdminUiPage {
+        route: "fees",
+        label: "Fee Model",
+        ui_endpoint: "/v1/admin/ui/fees",
+        data_endpoint: "/v1/admin/fees",
+        icon: "0xe263",
+    },
 ];
 
 /// The scope-mirror Shield text — action-granular permits over the LIVE
@@ -114,7 +203,8 @@ const POLICIES: &[PolicySetDecl] = &[PolicySetDecl {
 const SQL_1_INIT: &str = include_str!("../sql/init.sql");
 
 fn openapi_spec() -> serde_json::Value {
-    serde_json::to_value(crate::openapi::LedgerOpenApi::openapi()).unwrap_or(serde_json::Value::Null)
+    serde_json::to_value(crate::openapi::LedgerOpenApi::openapi())
+        .unwrap_or(serde_json::Value::Null)
 }
 
 /// Print the registration JSON to stdout (`--print-registration [--section=…]`).
@@ -137,7 +227,11 @@ pub fn print(section: Option<String>) -> anyhow::Result<()> {
             service_flag: "ledger",
             pages: ADMIN_UI_PAGES,
         }),
-        sql_migrations: vec![SqlMigration { version: 1, name: "init", sql: SQL_1_INIT }],
+        sql_migrations: vec![SqlMigration {
+            version: 1,
+            name: "init",
+            sql: SQL_1_INIT,
+        }],
         pg_roles: PG_ROLES,
         audit_findings: None,
         service_actions: None,

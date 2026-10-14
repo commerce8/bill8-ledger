@@ -46,28 +46,32 @@ pub async fn create_payout(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:payouts:write"),
-    ).await?;
+    )
+    .await?;
 
-    let amount: Decimal = req
-        .amount
-        .parse()
-        .map_err(|_| (StatusCode::BAD_REQUEST, "amount must be a decimal string".into()))?;
+    let amount: Decimal = req.amount.parse().map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "amount must be a decimal string".into(),
+        )
+    })?;
     if amount <= Decimal::ZERO {
         return Err((StatusCode::BAD_REQUEST, "amount must be positive".into()));
     }
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     // Idempotency: a retried payout returns the original.
     if let Some(key) = req.idempotency_key.as_deref() {
-        if let Ok(Some(row)) = sqlx::query(
-            "SELECT id FROM ledger.payouts WHERE env_id = $1 AND idempotency_key = $2",
-        )
-        .bind(a.env_id())
-        .bind(key)
-        .fetch_optional(&mut *conn)
-        .await
+        if let Ok(Some(row)) =
+            sqlx::query("SELECT id FROM ledger.payouts WHERE env_id = $1 AND idempotency_key = $2")
+                .bind(a.env_id())
+                .bind(key)
+                .fetch_optional(&mut *conn)
+                .await
         {
             let id: Uuid = row.get("id");
             conn.commit().await.map_err(err_db)?;
@@ -127,18 +131,22 @@ pub async fn create_payout(
     .await
     .map_err(err_db)?;
 
-    sqlx::query("UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2")
-        .bind(amount)
-        .bind(avail)
-        .execute(&mut *conn)
-        .await
-        .map_err(err_db)?;
-    sqlx::query("UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2")
-        .bind(amount)
-        .bind(pending)
-        .execute(&mut *conn)
-        .await
-        .map_err(err_db)?;
+    sqlx::query(
+        "UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2",
+    )
+    .bind(amount)
+    .bind(avail)
+    .execute(&mut *conn)
+    .await
+    .map_err(err_db)?;
+    sqlx::query(
+        "UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2",
+    )
+    .bind(amount)
+    .bind(pending)
+    .execute(&mut *conn)
+    .await
+    .map_err(err_db)?;
 
     let row = sqlx::query(
         r#"INSERT INTO ledger.payouts
@@ -194,10 +202,13 @@ pub async fn list_payouts(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:payouts:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         r#"SELECT id, env_id, account_id, external_account_ref, amount, currency, status, created_at
@@ -232,7 +243,8 @@ pub async fn get_payout(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:payouts:read"),
-    ).await?;
+    )
+    .await?;
     get_payout_row(&state, a.env_id(), id).await
 }
 
@@ -242,7 +254,9 @@ async fn get_payout_row(
     id: Uuid,
 ) -> Result<Json<Payout>, (StatusCode, String)> {
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, env_id).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, env_id)
+        .await
+        .map_err(err_db)?;
     let row = sqlx::query(
         "SELECT id, env_id, account_id, external_account_ref, amount, currency, status, created_at FROM ledger.payouts WHERE id = $1",
     )

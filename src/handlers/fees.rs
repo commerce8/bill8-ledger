@@ -49,10 +49,13 @@ pub async fn list_fees(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:fees:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         "SELECT id, transaction_type, fixed_amount, bps, currency FROM ledger.fees ORDER BY transaction_type",

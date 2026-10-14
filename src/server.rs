@@ -19,10 +19,7 @@ use crate::handlers;
 /// # Errors
 /// Returns the certificate-ensure or transport-build failure (the
 /// caller logs and degrades).
-async fn build_workload_http(
-    auth_issuer: &str,
-    workload: &str,
-) -> anyhow::Result<reqwest::Client> {
+async fn build_workload_http(auth_issuer: &str, workload: &str) -> anyhow::Result<reqwest::Client> {
     let cert = sentin8::auth::m2m::ensure_workload_certificate(
         auth_issuer,
         workload,
@@ -41,9 +38,7 @@ async fn build_workload_http(
 /// Bind the service state onto the shell-provided core: config, capped
 /// pool, the shell-booted Shield engine (step 8), and the cert-presenting
 /// Bus client. See `services/ledger/DESIGN.md` §2 (runtime architecture).
-pub async fn build_state(
-    core: sentin8::shell::ServiceCore,
-) -> anyhow::Result<handlers::AppState> {
+pub async fn build_state(core: sentin8::shell::ServiceCore) -> anyhow::Result<handlers::AppState> {
     let mut config = crate::config::LedgerConfig::from_env();
 
     // Cert-presenting Bus client (CERTFREE-4V): the `ledger` workload
@@ -91,12 +86,16 @@ pub async fn build_state(
 pub fn routes(router: axum::Router<handlers::AppState>) -> axum::Router<handlers::AppState> {
     router
         .route("/v1/health", get(handlers::health))
-        .route("/v1/accounts", get(handlers::accounts::list_accounts).post(handlers::accounts::create_account))
+        .route(
+            "/v1/accounts",
+            get(handlers::accounts::list_accounts).post(handlers::accounts::create_account),
+        )
         .route("/v1/balances", get(handlers::balances::list_balances))
         .route("/v1/balances/{id}", get(handlers::balances::get_balance))
         .route(
             "/v1/balance-transactions",
-            get(handlers::transactions::list_transactions).post(handlers::transactions::post_transaction),
+            get(handlers::transactions::list_transactions)
+                .post(handlers::transactions::post_transaction),
         )
         .route(
             "/v1/payouts",
@@ -107,13 +106,22 @@ pub fn routes(router: axum::Router<handlers::AppState>) -> axum::Router<handlers
             "/v1/transfers",
             get(handlers::transfers::list_transfers).post(handlers::transfers::create_transfer),
         )
-        .route("/v1/fees", get(handlers::fees::list_fees).post(handlers::transfers::upsert_fee))
+        .route(
+            "/v1/fees",
+            get(handlers::fees::list_fees).post(handlers::transfers::upsert_fee),
+        )
         // Payout schedules (LED-7) + the Cron proxy-back tick.
         .route(
             "/v1/payout-schedules",
             get(handlers::payout_schedules::list_payout_schedules)
                 .post(handlers::payout_schedules::create_payout_schedule),
         )
-        .route("/v1/payout-schedules/{id}", axum::routing::delete(handlers::payout_schedules::delete_payout_schedule))
-        .route("/v1/internal/payout-schedules/run", axum::routing::post(handlers::payout_schedules::run_payout_schedules))
+        .route(
+            "/v1/payout-schedules/{id}",
+            axum::routing::delete(handlers::payout_schedules::delete_payout_schedule),
+        )
+        .route(
+            "/v1/internal/payout-schedules/run",
+            axum::routing::post(handlers::payout_schedules::run_payout_schedules),
+        )
 }

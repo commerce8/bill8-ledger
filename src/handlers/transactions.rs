@@ -58,18 +58,23 @@ pub async fn post_transaction(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:balance-transactions:write"),
-    ).await?;
+    )
+    .await?;
 
-    let amount: Decimal = req
-        .amount
-        .parse()
-        .map_err(|_| (StatusCode::BAD_REQUEST, "amount must be a decimal string".into()))?;
+    let amount: Decimal = req.amount.parse().map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "amount must be a decimal string".into(),
+        )
+    })?;
     if amount <= Decimal::ZERO {
         return Err((StatusCode::BAD_REQUEST, "amount must be positive".into()));
     }
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     // Idempotency: a retried posting returns the original row.
     if let Some(key) = req.idempotency_key.as_deref() {
@@ -96,8 +101,16 @@ pub async fn post_transaction(
 
     if debit.currency != req.currency || credit.currency != req.currency {
         return Err(map_domain(LedgerError::CurrencyMismatch {
-            balance: if debit.currency != req.currency { debit.id } else { credit.id },
-            balance_currency: if debit.currency != req.currency { debit.currency.clone() } else { credit.currency.clone() },
+            balance: if debit.currency != req.currency {
+                debit.id
+            } else {
+                credit.id
+            },
+            balance_currency: if debit.currency != req.currency {
+                debit.currency.clone()
+            } else {
+                credit.currency.clone()
+            },
             posting_currency: req.currency.clone(),
         }));
     }
@@ -132,18 +145,22 @@ pub async fn post_transaction(
     .map_err(err_db)?;
 
     // Mutate both balance rows (locked — serialized per balance).
-    sqlx::query("UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2")
-        .bind(amount)
-        .bind(req.debit_balance_id)
-        .execute(&mut *conn)
-        .await
-        .map_err(err_db)?;
-    sqlx::query("UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2")
-        .bind(amount)
-        .bind(req.credit_balance_id)
-        .execute(&mut *conn)
-        .await
-        .map_err(err_db)?;
+    sqlx::query(
+        "UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2",
+    )
+    .bind(amount)
+    .bind(req.debit_balance_id)
+    .execute(&mut *conn)
+    .await
+    .map_err(err_db)?;
+    sqlx::query(
+        "UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2",
+    )
+    .bind(amount)
+    .bind(req.credit_balance_id)
+    .execute(&mut *conn)
+    .await
+    .map_err(err_db)?;
 
     // Outbox-first: the event rides in the same transaction.
     sqlx::query(
@@ -194,10 +211,13 @@ pub async fn list_transactions(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:balance-transactions:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         r#"SELECT id, debit_balance_id, credit_balance_id, amount, currency,
@@ -235,10 +255,12 @@ pub(crate) async fn post_transaction_in_tx(
     env_id: Uuid,
     req: PostTransactionRequest,
 ) -> Result<BalanceTransaction, (StatusCode, String)> {
-    let amount: Decimal = req
-        .amount
-        .parse()
-        .map_err(|_| (StatusCode::BAD_REQUEST, "amount must be a decimal string".into()))?;
+    let amount: Decimal = req.amount.parse().map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "amount must be a decimal string".into(),
+        )
+    })?;
     if amount <= Decimal::ZERO {
         return Err((StatusCode::BAD_REQUEST, "amount must be positive".into()));
     }
@@ -248,8 +270,16 @@ pub(crate) async fn post_transaction_in_tx(
 
     if debit.currency != req.currency || credit.currency != req.currency {
         return Err(map_domain(LedgerError::CurrencyMismatch {
-            balance: if debit.currency != req.currency { debit.id } else { credit.id },
-            balance_currency: if debit.currency != req.currency { debit.currency.clone() } else { credit.currency.clone() },
+            balance: if debit.currency != req.currency {
+                debit.id
+            } else {
+                credit.id
+            },
+            balance_currency: if debit.currency != req.currency {
+                debit.currency.clone()
+            } else {
+                credit.currency.clone()
+            },
             posting_currency: req.currency.clone(),
         }));
     }
@@ -283,18 +313,22 @@ pub(crate) async fn post_transaction_in_tx(
     .await
     .map_err(err_db)?;
 
-    sqlx::query("UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2")
-        .bind(amount)
-        .bind(req.debit_balance_id)
-        .execute(&mut *conn)
-        .await
-        .map_err(err_db)?;
-    sqlx::query("UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2")
-        .bind(amount)
-        .bind(req.credit_balance_id)
-        .execute(&mut *conn)
-        .await
-        .map_err(err_db)?;
+    sqlx::query(
+        "UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2",
+    )
+    .bind(amount)
+    .bind(req.debit_balance_id)
+    .execute(&mut *conn)
+    .await
+    .map_err(err_db)?;
+    sqlx::query(
+        "UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2",
+    )
+    .bind(amount)
+    .bind(req.credit_balance_id)
+    .execute(&mut *conn)
+    .await
+    .map_err(err_db)?;
 
     sqlx::query(
         r#"INSERT INTO ledger.outbox (env_id, event_type, payload)

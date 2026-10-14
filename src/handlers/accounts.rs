@@ -48,7 +48,8 @@ pub async fn create_account(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:accounts:write"),
-    ).await?;
+    )
+    .await?;
 
     let account_type = match req.account_type.as_str() {
         "customer" | "platform" | "connected" => req.account_type.clone(),
@@ -61,7 +62,9 @@ pub async fn create_account(
     };
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let id = Uuid::new_v4();
     let row = sqlx::query(
@@ -135,10 +138,13 @@ pub async fn list_accounts(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:accounts:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         "SELECT id, account_type, display_name, created_at FROM ledger.accounts ORDER BY created_at DESC LIMIT 500",

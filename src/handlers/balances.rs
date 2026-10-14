@@ -43,10 +43,13 @@ pub async fn list_balances(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:balances:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         r#"SELECT id, account_id, name, currency, amount, updated_at
@@ -97,10 +100,13 @@ pub async fn get_balance(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:balances:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let row = sqlx::query(
         "SELECT id, account_id, name, currency, amount, updated_at FROM ledger.balances WHERE id = $1",

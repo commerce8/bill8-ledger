@@ -61,13 +61,14 @@ impl LedgerConfig {
                 .expect("BILL8_LEDGER_PORT must be a valid u16"),
             database_url: env::var("BILL8_LEDGER_DATABASE_URL")
                 .or_else(|_| env::var("DATABASE_URL"))
-                .unwrap_or_else(|_| sentin8::config::Sentin8Config::default_database_url().to_string()),
+                .unwrap_or_else(|_| {
+                    sentin8::config::Sentin8Config::default_database_url().to_string()
+                }),
             sentin8_auth_issuer: env::var("SENTIN8_AUTH_ISSUER")
                 .unwrap_or_else(|_| cfg.sentin8_auth_issuer()),
             sentin8_auth_jwks_url: env::var("SENTIN8_AUTH_JWKS_URL")
                 .unwrap_or_else(|_| cfg.sentin8_auth_jwks_url()),
-            sentin8_bus_url: env::var("SENTIN8_BUS_URL")
-                .unwrap_or_else(|_| cfg.sentin8_bus_url()),
+            sentin8_bus_url: env::var("SENTIN8_BUS_URL").unwrap_or_else(|_| cfg.sentin8_bus_url()),
             stream_family: "ledger".into(),
             sentin8_auth_client: AuthClient::new(ClientOptions {
                 base_url: env::var("SENTIN8_AUTH_ISSUER")

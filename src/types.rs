@@ -20,7 +20,9 @@ pub enum LedgerError {
     #[error("balance {0} not found")]
     BalanceNotFound(uuid::Uuid),
     /// A balance transacts only in its own currency — rejected pre-write.
-    #[error("currency mismatch: balance {balance} is {balance_currency}, posting is {posting_currency}")]
+    #[error(
+        "currency mismatch: balance {balance} is {balance_currency}, posting is {posting_currency}"
+    )]
     CurrencyMismatch {
         balance: uuid::Uuid,
         balance_currency: String,
@@ -28,7 +30,10 @@ pub enum LedgerError {
     },
     /// Insufficient available balance — rejected pre-write.
     #[error("insufficient funds: available {available}, requested {requested}")]
-    InsufficientFunds { available: String, requested: String },
+    InsufficientFunds {
+        available: String,
+        requested: String,
+    },
     /// A terminal-state transition was attempted (never regresses).
     #[error("illegal state transition: {from} -> {to}")]
     IllegalTransition { from: String, to: String },

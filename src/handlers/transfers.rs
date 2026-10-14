@@ -62,18 +62,23 @@ pub async fn create_transfer(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:transfers:write"),
-    ).await?;
+    )
+    .await?;
 
-    let amount: Decimal = req
-        .amount
-        .parse()
-        .map_err(|_| (StatusCode::BAD_REQUEST, "amount must be a decimal string".into()))?;
+    let amount: Decimal = req.amount.parse().map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "amount must be a decimal string".into(),
+        )
+    })?;
     if amount <= Decimal::ZERO {
         return Err((StatusCode::BAD_REQUEST, "amount must be positive".into()));
     }
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     // Delegate the movement to the double-entry engine (row-locked legs).
     crate::handlers::transactions::post_transaction_in_tx(
@@ -153,10 +158,13 @@ pub async fn list_transfers(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:transfers:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         "SELECT id, from_balance_id, to_balance_id, amount, currency, created_at FROM ledger.transfers ORDER BY created_at DESC LIMIT 200",
@@ -202,15 +210,20 @@ pub async fn upsert_fee(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:fees:write"),
-    ).await?;
+    )
+    .await?;
 
-    let fixed: Decimal = req
-        .fixed_amount
-        .parse()
-        .map_err(|_| (StatusCode::BAD_REQUEST, "fixed_amount must be a decimal string".into()))?;
+    let fixed: Decimal = req.fixed_amount.parse().map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "fixed_amount must be a decimal string".into(),
+        )
+    })?;
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     sqlx::query(
         r#"INSERT INTO ledger.fees (env_id, transaction_type, fixed_amount, bps, currency)

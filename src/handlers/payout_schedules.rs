@@ -66,18 +66,26 @@ pub async fn create_payout_schedule(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:payout-schedules:write"),
-    ).await?;
+    )
+    .await?;
 
     if !matches!(req.interval.as_str(), "daily" | "weekly" | "monthly") {
-        return Err((StatusCode::BAD_REQUEST, "interval must be daily|weekly|monthly".into()));
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "interval must be daily|weekly|monthly".into(),
+        ));
     }
-    let minimum: Decimal = req
-        .minimum_amount
-        .parse()
-        .map_err(|_| (StatusCode::BAD_REQUEST, "minimum_amount must be a decimal string".into()))?;
+    let minimum: Decimal = req.minimum_amount.parse().map_err(|_| {
+        (
+            StatusCode::BAD_REQUEST,
+            "minimum_amount must be a decimal string".into(),
+        )
+    })?;
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let id = Uuid::new_v4();
     let row = sqlx::query(
@@ -132,10 +140,13 @@ pub async fn list_payout_schedules(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:payout-schedules:read"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.acquire().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let rows = sqlx::query(
         "SELECT id, account_id, interval, minimum_amount, currency, enabled FROM ledger.payout_schedules ORDER BY created_at",
@@ -169,18 +180,25 @@ pub async fn delete_payout_schedule(
         &a,
         &headers,
         sentin8::shield::EvalTarget::new("bill8:ledger:payout-schedules:write"),
-    ).await?;
+    )
+    .await?;
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
-
-    let result = sqlx::query("UPDATE ledger.payout_schedules SET enabled = false WHERE id = $1 AND enabled")
-        .bind(id)
-        .execute(&mut *conn)
+    set_tenant_context(&mut conn, a.env_id())
         .await
         .map_err(err_db)?;
+
+    let result =
+        sqlx::query("UPDATE ledger.payout_schedules SET enabled = false WHERE id = $1 AND enabled")
+            .bind(id)
+            .execute(&mut *conn)
+            .await
+            .map_err(err_db)?;
     if result.rows_affected() == 0 {
-        return Err((StatusCode::NOT_FOUND, "schedule not found or already disabled".into()));
+        return Err((
+            StatusCode::NOT_FOUND,
+            "schedule not found or already disabled".into(),
+        ));
     }
 
     conn.commit().await.map_err(err_db)?;
@@ -209,7 +227,9 @@ pub async fn run_payout_schedules(
     let a = auth::verify_token(&state.config, &headers).await?;
 
     let mut conn = state.pool.begin().await.map_err(err_db)?;
-    set_tenant_context(&mut conn, a.env_id()).await.map_err(err_db)?;
+    set_tenant_context(&mut conn, a.env_id())
+        .await
+        .map_err(err_db)?;
 
     let schedules = sqlx::query(
         "SELECT id, account_id, external_account_ref, interval, minimum_amount, currency FROM ledger.payout_schedules WHERE enabled",
@@ -269,7 +289,10 @@ pub async fn run_payout_schedules(
         .bind(available)
         .bind(&currency)
         .bind(schedule_id)
-        .bind(format!("payout-schedule-{schedule_id}-{}", chrono::Utc::now().format("%Y%m%d%H%M")))
+        .bind(format!(
+            "payout-schedule-{schedule_id}-{}",
+            chrono::Utc::now().format("%Y%m%d%H%M")
+        ))
         .execute(&mut *conn)
         .await
         .map_err(err_db)?;
@@ -279,12 +302,14 @@ pub async fn run_payout_schedules(
             .execute(&mut *conn)
             .await
             .map_err(err_db)?;
-        sqlx::query("UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2")
-            .bind(available)
-            .bind(pending)
-            .execute(&mut *conn)
-            .await
-            .map_err(err_db)?;
+        sqlx::query(
+            "UPDATE ledger.balances SET amount = amount + $1, updated_at = now() WHERE id = $2",
+        )
+        .bind(available)
+        .bind(pending)
+        .execute(&mut *conn)
+        .await
+        .map_err(err_db)?;
 
         sqlx::query(
             r#"INSERT INTO ledger.payouts (id, env_id, account_id, external_account_ref, amount, currency, status)
@@ -314,7 +339,9 @@ pub async fn run_payout_schedules(
     }
 
     conn.commit().await.map_err(err_db)?;
-    Ok(Json(serde_json::json!({ "payouts_created": payouts_created, "below_minimum": below_minimum })))
+    Ok(Json(
+        serde_json::json!({ "payouts_created": payouts_created, "below_minimum": below_minimum }),
+    ))
 }
 
 fn row_to_schedule(row: &sqlx::postgres::PgRow) -> PayoutScheduleResponse {
