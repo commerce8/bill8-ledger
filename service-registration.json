@@ -14,7 +14,11 @@
           "consumer_group": "bill8:ledger:payout-schedules",
           "action": "run_payout_schedules"
         }
-      ]
+      ],
+      "telemetry_property": {
+        "slug": "ledger",
+        "name": "Bill8:Ledger Telemetry"
+      }
     }
   ]
 }
