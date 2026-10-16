@@ -6,12 +6,7 @@
 //! Bill8:Ledger binary — boots on the platform `sentin8::shell`.
 //! See `services/ledger/DESIGN.md` for the detailed design.
 
-// mimalloc global allocator (workspace posture): glibc's per-thread
 // arenas fragment under the many-worker tokio runtime and never return
-// memory; mimalloc uses bounded shared arenas.
-#[global_allocator]
-static GLOBAL_ALLOCATOR: mimalloc::MiMalloc = mimalloc::MiMalloc;
-
 #[allow(dead_code)]
 mod auth;
 #[allow(dead_code)]
