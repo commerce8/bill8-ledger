@@ -143,6 +143,12 @@ stateDiagram-v2
     paid --> [*]
 ```
 
+**Producer tables** (platform contracts, `ledger` leaf schema):
+`ledger.outbox` (DBX producer path — architecture-principles §6.7) and
+`ledger.audit_journal` (the 15-column contract of
+`sentin8_audit::audit_journal_sql`, AUDJOUR-1 — env-pinned RLS, drained
+to Sys `POST /v1/audit` by the shell's boot-8c pusher).
+
 ## 4. API Surface
 
 | Endpoint group | Prefix | Authorization | Events |
