@@ -15,6 +15,7 @@ use crate::handlers;
 /// The ledger's OpenAPI document.
 #[derive(OpenApi)]
 #[openapi(paths(
+    handlers::health,
     handlers::accounts::create_account,
     handlers::accounts::list_accounts,
     handlers::balances::list_balances,

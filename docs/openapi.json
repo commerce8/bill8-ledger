@@ -308,6 +308,26 @@
         ]
       }
     },
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health probe payload.",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Liveness (version, build)",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
     "/v1/internal/payout-schedules/run": {
       "post": {
         "tags": [

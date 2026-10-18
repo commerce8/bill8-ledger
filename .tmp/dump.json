@@ -1,0 +1,1108 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "bill8-ledger",
+    "description": "Sentin8 Bill8:Ledger — double-entry money engine, balances, payouts, transfers.",
+    "license": {
+      "name": "MIT OR Apache-2.0",
+      "identifier": "MIT OR Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/v1/accounts": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/accounts` — list ledger accounts.",
+        "operationId": "list_accounts",
+        "responses": {
+          "200": {
+            "description": "List of accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:accounts:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:accounts:read": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/accounts` — create a ledger account with its standard\nbalances (`available`, `pending`).",
+        "operationId": "create_account",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Account created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:accounts:write"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:accounts:write": []
+          }
+        ]
+      }
+    },
+    "/v1/balance-transactions": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/balance-transactions` — list movements (optionally by balance).",
+        "operationId": "list_transactions",
+        "parameters": [
+          {
+            "name": "balance_id",
+            "in": "query",
+            "description": "Filter by balance leg",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BalanceTransaction"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:balance-transactions:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:balance-transactions:read": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/balance-transactions` — post one double-entry movement.",
+        "description": "The money path: BEGIN → tenant context → idempotency check →\ncurrency/currency validation → row-lock both balances → append the\ntransaction → mutate both balance rows → outbox (same tx) → COMMIT.\nA rejected batch writes NOTHING (imbalanced, currency mismatch, or\ninsufficient debit funds all fail pre-write).",
+        "operationId": "post_transaction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction posted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceTransaction"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:balance-transactions:write"
+          },
+          "422": {
+            "description": "Imbalanced/currency-mismatch — nothing written"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:balance-transactions:write": []
+          }
+        ]
+      }
+    },
+    "/v1/balances": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/balances` — list balances (optionally filtered).",
+        "operationId": "list_balances",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "query",
+            "description": "Filter by account",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Filter by balance name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of balances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Balance"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:balances:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:balances:read": []
+          }
+        ]
+      }
+    },
+    "/v1/balances/{id}": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/balances/{id}` — read one balance.",
+        "operationId": "get_balance",
+        "responses": {
+          "200": {
+            "description": "The balance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Balance not found"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:balances:read": []
+          }
+        ]
+      }
+    },
+    "/v1/fees": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/fees` — list the configured fee model.",
+        "operationId": "list_fees",
+        "responses": {
+          "200": {
+            "description": "List of fee entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeeResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:fees:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:fees:read": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/fees` — upsert the fee model for a transaction type.",
+        "operationId": "upsert_fee",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertFeeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Fee model saved"
+          },
+          "403": {
+            "description": "Missing bill8:ledger:fees:write"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:fees:write": []
+          }
+        ]
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health probe payload.",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Liveness (version, build)",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/internal/payout-schedules/run": {
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/internal/payout-schedules/run` — the Cron proxy-back tick.\nCreates a payout for each enabled schedule whose available balance\nmeets its minimum. At most one payout per tick (the balance guard\nitself enforces it: the available row lock serializes).",
+        "operationId": "run_payout_schedules",
+        "responses": {
+          "200": {
+            "description": "Tick processed"
+          }
+        },
+        "security": [
+          {
+            "sentin8:cron:write": []
+          }
+        ]
+      }
+    },
+    "/v1/payout-schedules": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/payout-schedules` — list schedules.",
+        "operationId": "list_payout_schedules",
+        "responses": {
+          "200": {
+            "description": "List of schedules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PayoutScheduleResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:payout-schedules:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:payout-schedules:read": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/payout-schedules` — create an automatic payout schedule.",
+        "operationId": "create_payout_schedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayoutScheduleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutScheduleResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:payout-schedules:write"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:payout-schedules:write": []
+          }
+        ]
+      }
+    },
+    "/v1/payout-schedules/{id}": {
+      "delete": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`DELETE /v1/payout-schedules/{id}` — disable a schedule.",
+        "operationId": "delete_payout_schedule",
+        "responses": {
+          "200": {
+            "description": "Schedule disabled"
+          },
+          "404": {
+            "description": "Schedule not found"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:payout-schedules:write": []
+          }
+        ]
+      }
+    },
+    "/v1/payouts": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/payouts` — list payouts.",
+        "operationId": "list_payouts",
+        "responses": {
+          "200": {
+            "description": "List of payouts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Payout"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:payouts:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:payouts:read": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/payouts` — pay out available balance to an external account.",
+        "operationId": "create_payout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Payout created (pending)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payout"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:payouts:write"
+          },
+          "422": {
+            "description": "Insufficient available balance — nothing written"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:payouts:write": []
+          }
+        ]
+      }
+    },
+    "/v1/payouts/{id}": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/payouts/{id}` — read one payout.",
+        "operationId": "get_payout",
+        "responses": {
+          "200": {
+            "description": "The payout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payout"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payout not found"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:payouts:read": []
+          }
+        ]
+      }
+    },
+    "/v1/transfers": {
+      "get": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`GET /v1/transfers` — list transfers.",
+        "operationId": "list_transfers",
+        "responses": {
+          "200": {
+            "description": "List of transfers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transfer"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:transfers:read"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:transfers:read": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ledger"
+        ],
+        "summary": "`POST /v1/transfers` — move funds between connected balances.",
+        "operationId": "create_transfer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransferRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transfer"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing bill8:ledger:transfers:write"
+          },
+          "422": {
+            "description": "Insufficient funds — nothing written"
+          }
+        },
+        "security": [
+          {
+            "bill8:ledger:transfers:write": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountResponse": {
+        "type": "object",
+        "description": "Account response shape.",
+        "required": [
+          "id",
+          "account_type",
+          "display_name",
+          "created_at"
+        ],
+        "properties": {
+          "account_type": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "description": "A named money position per currency, e.g. `available` or `platform_fee`.",
+        "required": [
+          "id",
+          "account_id",
+          "name",
+          "currency",
+          "amount",
+          "updated_at"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owning ledger account."
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount as a JSON string on the wire (money is never a float)."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Balance id."
+          },
+          "name": {
+            "type": "string",
+            "description": "Balance name (`available` / `pending` / `connected_reserved` /\n`platform_fee`)."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp."
+          }
+        }
+      },
+      "BalanceTransaction": {
+        "type": "object",
+        "description": "An append-only double-entry movement debiting one balance and\ncrediting another.",
+        "required": [
+          "id",
+          "debit_balance_id",
+          "credit_balance_id",
+          "amount",
+          "currency",
+          "transaction_type",
+          "created_at"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "Amount as a JSON string on the wire."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp."
+          },
+          "credit_balance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Credit leg (destination balance)."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code."
+          },
+          "debit_balance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Debit leg (source balance)."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transaction id."
+          },
+          "source_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Originating resource id."
+          },
+          "source_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Originating resource (`charge` / `payout` / …)."
+          },
+          "transaction_type": {
+            "type": "string",
+            "description": "Movement type (`charge` / `refund` / `payout` / `transfer` / `fee`\n/ `fx` / `dispute_reversal`)."
+          }
+        }
+      },
+      "CreateAccountRequest": {
+        "type": "object",
+        "description": "Request body for `POST /v1/accounts`.",
+        "required": [
+          "account_type",
+          "display_name"
+        ],
+        "properties": {
+          "account_type": {
+            "type": "string",
+            "description": "Account family (`customer` / `platform` / `connected`)."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Display name."
+          }
+        }
+      },
+      "CreatePayoutRequest": {
+        "type": "object",
+        "description": "Request body for `POST /v1/payouts`.",
+        "required": [
+          "account_id",
+          "external_account_ref",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Ledger account being paid out."
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount as a decimal string."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code of the payout."
+          },
+          "external_account_ref": {
+            "type": "string",
+            "description": "External account destination (secret-by-reference)."
+          },
+          "idempotency_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Caller-supplied idempotency key."
+          }
+        }
+      },
+      "CreatePayoutScheduleRequest": {
+        "type": "object",
+        "description": "Request body for `POST /v1/payout-schedules`.",
+        "required": [
+          "account_id",
+          "external_account_ref",
+          "interval",
+          "minimum_amount",
+          "currency"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ledger account to pay out."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code."
+          },
+          "external_account_ref": {
+            "type": "string",
+            "description": "The external-account destination (secret-by-reference)."
+          },
+          "interval": {
+            "type": "string",
+            "description": "The payout interval (`daily` / `weekly` / `monthly`)."
+          },
+          "minimum_amount": {
+            "type": "string",
+            "description": "Payouts fire only when available ≥ minimum."
+          }
+        }
+      },
+      "CreateTransferRequest": {
+        "type": "object",
+        "description": "Request body for `POST /v1/transfers`.",
+        "required": [
+          "from_balance_id",
+          "to_balance_id",
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "from_balance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idempotency_key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to_balance_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "FeeResponse": {
+        "type": "object",
+        "description": "Fee-model response.",
+        "required": [
+          "id",
+          "transaction_type",
+          "fixed_amount",
+          "bps",
+          "currency"
+        ],
+        "properties": {
+          "bps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "fixed_amount": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "transaction_type": {
+            "type": "string"
+          }
+        }
+      },
+      "Payout": {
+        "type": "object",
+        "description": "A withdrawal of available balance to an external account.",
+        "required": [
+          "id",
+          "env_id",
+          "account_id",
+          "external_account_ref",
+          "amount",
+          "currency",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Ledger account being paid out."
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount as a JSON string on the wire."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code."
+          },
+          "env_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Owning tenant environment."
+          },
+          "external_account_ref": {
+            "type": "string",
+            "description": "External account destination (secret-by-reference)."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Payout id."
+          },
+          "status": {
+            "type": "string",
+            "description": "Lifecycle state (`pending` / `paid` / `failed`)."
+          }
+        }
+      },
+      "PayoutScheduleResponse": {
+        "type": "object",
+        "description": "Response shape.",
+        "required": [
+          "id",
+          "account_id",
+          "interval",
+          "minimum_amount",
+          "currency",
+          "enabled"
+        ],
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "interval": {
+            "type": "string"
+          },
+          "minimum_amount": {
+            "type": "string"
+          }
+        }
+      },
+      "PostTransactionRequest": {
+        "type": "object",
+        "description": "A request to post one double-entry movement (used by the payments and\nbilling services via their cross-service M2M workloads).",
+        "required": [
+          "debit_balance_id",
+          "credit_balance_id",
+          "amount",
+          "currency",
+          "transaction_type"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "Amount as a decimal string."
+          },
+          "credit_balance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Credit leg (destination balance)."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code."
+          },
+          "debit_balance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Debit leg (source balance)."
+          },
+          "idempotency_key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Caller-supplied idempotency key."
+          },
+          "source_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Originating resource id."
+          },
+          "source_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Originating resource (`charge` / `payout` / …)."
+          },
+          "transaction_type": {
+            "type": "string",
+            "description": "Movement type."
+          }
+        }
+      },
+      "Transfer": {
+        "type": "object",
+        "description": "An internal movement between connected-account balances.",
+        "required": [
+          "id",
+          "from_balance_id",
+          "to_balance_id",
+          "amount",
+          "currency",
+          "created_at"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string",
+            "description": "Amount as a JSON string on the wire."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp."
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code."
+          },
+          "from_balance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Debit balance (source)."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Transfer id."
+          },
+          "to_balance_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Credit balance (destination)."
+          }
+        }
+      },
+      "UpsertFeeRequest": {
+        "type": "object",
+        "description": "Fee-model request body.",
+        "required": [
+          "transaction_type",
+          "fixed_amount",
+          "bps",
+          "currency"
+        ],
+        "properties": {
+          "bps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "fixed_amount": {
+            "type": "string"
+          },
+          "transaction_type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
