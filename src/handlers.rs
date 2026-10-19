@@ -19,6 +19,7 @@ pub mod payouts;
 pub mod transactions;
 pub mod transfers;
 
+use bill8::wire::contracts::HealthBuild;
 use std::sync::Arc;
 
 use crate::config::LedgerConfig;
@@ -82,15 +83,17 @@ pub async fn emit_event(
     get,
     path = "/v1/health",
     responses(
-        (status = 200, description = "Liveness (version, build)", body = serde_json::Value),
+        (status = 200, description = "Liveness (status, service, version, build)", body = bill8::wire::contracts::HealthBuild),
     ),
     security(),
     tag = "meta",
 )]
 /// Health probe payload.
-pub async fn health() -> axum::Json<serde_json::Value> {
-    axum::Json(serde_json::json!({
-        "status": "ok",
-        "service": "ledger",
-        "version": sentin8::build_info::id(), "build": sentin8::build_info::build_hash() }))
+pub async fn health() -> axum::Json<HealthBuild> {
+    axum::Json(HealthBuild {
+        status: "ok".to_string(),
+        service: "ledger".to_string(),
+        version: sentin8::build_info::id(),
+        build: sentin8::build_info::build_hash().to_string(),
+    })
 }
