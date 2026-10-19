@@ -3,10 +3,10 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Fee-model handlers — the explicit platform-fee surface.
+//! Fee-model handlers - the explicit platform-fee surface.
 //!
 //! Fees are DATA: the fee charged on a charge is captured as an explicit
-//! balance transaction crediting the `platform_fee` balance — never
+//! balance transaction crediting the `platform_fee` balance - never
 //! implicit, never folded into a charge amount. See ledger DESIGN.md §3.
 
 use axum::extract::State;
@@ -28,7 +28,7 @@ pub struct FeeResponse {
     pub currency: String,
 }
 
-/// `GET /v1/fees` — list the configured fee model.
+/// `GET /v1/fees` - list the configured fee model.
 #[utoipa::path(
     get,
     path = "/v1/fees",

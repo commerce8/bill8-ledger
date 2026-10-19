@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Transfer handlers — internal movements between connected balances,
+//! Transfer handlers - internal movements between connected balances,
 //! and fee-model configuration. Both post through the double-entry
 //! engine; a transfer or fee never bypasses it.
 
@@ -38,7 +38,7 @@ pub struct UpsertFeeRequest {
     pub currency: String,
 }
 
-/// `POST /v1/transfers` — move funds between connected balances.
+/// `POST /v1/transfers` - move funds between connected balances.
 #[utoipa::path(
     post,
     path = "/v1/transfers",
@@ -46,7 +46,7 @@ pub struct UpsertFeeRequest {
     responses(
         (status = 200, description = "Transfer created", body = Transfer),
         (status = 403, description = "Missing bill8:ledger:transfers:write"),
-        (status = 422, description = "Insufficient funds — nothing written"),
+        (status = 422, description = "Insufficient funds - nothing written"),
     ),
     security(("bill8:ledger:transfers:write" = [])),
     tag = "ledger",
@@ -137,7 +137,7 @@ pub async fn create_transfer(
     Ok(Json(transfer))
 }
 
-/// `GET /v1/transfers` — list transfers.
+/// `GET /v1/transfers` - list transfers.
 #[utoipa::path(
     get,
     path = "/v1/transfers",
@@ -187,7 +187,7 @@ pub async fn list_transfers(
     ))
 }
 
-/// `POST /v1/fees` — upsert the fee model for a transaction type.
+/// `POST /v1/fees` - upsert the fee model for a transaction type.
 #[utoipa::path(
     post,
     path = "/v1/fees",

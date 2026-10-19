@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Auth token verification for Bill8:Ledger (steps 1–4 of the
-//! authorization pipeline). Step 5 — the Shield policy gate — is the
+//! Auth token verification for Bill8:Ledger (steps 1-4 of the
+//! authorization pipeline). Step 5 - the Shield policy gate - is the
 //! authorization decision; no JWT scope check remains in handlers.
 //! See `services/ledger/DESIGN.md` §5.
 
@@ -15,7 +15,7 @@ use crate::config::LedgerConfig;
 pub use sentin8::auth::client::AuthContext;
 
 /// Verify the Bearer token and return the auth context (identity +
-/// signature + expiry + tenant). NO scope check — step 5
+/// signature + expiry + tenant). NO scope check - step 5
 /// (`crate::policy::require`) is the authorization decision.
 ///
 /// # Errors

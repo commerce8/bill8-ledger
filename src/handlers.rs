@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Ledger HTTP handlers — the double-entry money engine.
+//! Ledger HTTP handlers - the double-entry money engine.
 //!
 //! **Same-transaction discipline** (ledger DESIGN.md §2): every mutation
 //! runs BEGIN → `set_tenant_context(env)` → validation → row-locked
@@ -33,14 +33,14 @@ pub struct AppState {
     pub pool: sqlx::PgPool,
     /// Cert-presenting Bus client.
     pub bus_client: sentin8::bus::client::BusClient,
-    /// Shield policy engine — step 5 is the ONLY gate.
+    /// Shield policy engine - step 5 is the ONLY gate.
     pub policy: Arc<Engine>,
 }
 
 /// Set the transaction-local RLS tenant context on a connection.
 ///
 /// MUST be `.await`ed and called on the SAME connection as the subsequent
-/// data query — `sentin8_set_tenant_context` uses `set_config(..., true)`
+/// data query - `sentin8_set_tenant_context` uses `set_config(..., true)`
 /// which is transaction-local.
 pub async fn set_tenant_context(
     conn: &mut sqlx::PgConnection,
@@ -62,7 +62,7 @@ pub fn err_db(e: sqlx::Error) -> (axum::http::StatusCode, String) {
 /// architecture-principles §6.7). Inserts a `ledger.outbox` row that the
 /// shell's post-commit relay drains to Bus `POST /v1/produce`
 /// (idempotency_key = row id). Best-effort: errors are logged, not
-/// propagated — the in-transaction variant lives on the same `conn`
+/// propagated - the in-transaction variant lives on the same `conn`
 /// for atomic paths.
 pub async fn emit_event(
     pool: &sqlx::PgPool,

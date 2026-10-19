@@ -10,7 +10,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/commerce8/bill8-ledger"
 rust-version = "1.85"
-description = "Sentin8 Bill8:Ledger — double-entry money engine, balances, payouts, transfers."
+description = "Sentin8 Bill8:Ledger - double-entry money engine, balances, payouts, transfers."
 
 [[bin]]
 name = "bill8-ledger"

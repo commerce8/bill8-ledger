@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Ledger-account handlers — the internal accounts that hold balances.
+//! Ledger-account handlers - the internal accounts that hold balances.
 
 use axum::extract::State;
 use axum::http::{HeaderMap, StatusCode};
@@ -24,7 +24,7 @@ pub struct AccountResponse {
     pub created_at: chrono::DateTime<chrono::Utc>,
 }
 
-/// `POST /v1/accounts` — create a ledger account with its standard
+/// `POST /v1/accounts` - create a ledger account with its standard
 /// balances (`available`, `pending`).
 #[utoipa::path(
     post,
@@ -117,7 +117,7 @@ pub async fn create_account(
     Ok(Json(resp))
 }
 
-/// `GET /v1/accounts` — list ledger accounts.
+/// `GET /v1/accounts` - list ledger accounts.
 #[utoipa::path(
     get,
     path = "/v1/accounts",
@@ -166,7 +166,7 @@ pub async fn list_accounts(
 }
 
 /// Emit the balance:updated event (used by the payout/transfer paths via
-/// the pool helper — best-effort by design for non-posting reads).
+/// the pool helper - best-effort by design for non-posting reads).
 pub async fn emit_balance_updated(pool: &sqlx::PgPool, env_id: Uuid, balance_id: Uuid) {
     emit_event(
         pool,

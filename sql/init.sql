@@ -3,7 +3,7 @@
 -- SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 -- SPDX-License-Identifier: Apache-2.0
 
--- Bill8:Ledger — the service's own schema `ledger` (schema-per-service):
+-- Bill8:Ledger - the service's own schema `ledger` (schema-per-service):
 -- domain tables + ledger.outbox / ledger.audit_journal producer tables,
 -- all FORCE-RLS env-scoped.
 --
@@ -120,7 +120,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_ledger_transfers_idempotency
 
 -- Fees: the configured fee model (fixed + bps per transaction type).
 -- The fee charged on a charge is captured as an explicit balance
--- transaction crediting the platform_fee balance — never implicit.
+-- transaction crediting the platform_fee balance - never implicit.
 CREATE TABLE IF NOT EXISTS ledger.fees (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     env_id          UUID NOT NULL,
@@ -151,7 +151,7 @@ ALTER TABLE ledger.fees ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ledger.fees FORCE ROW LEVEL SECURITY;
 
 -- Tenant isolation policy: env_id must match the tenant context set on
--- the SAME connection/transaction (`sentin8_set_tenant_context` —
+-- the SAME connection/transaction (`sentin8_set_tenant_context` -
 -- transaction-local `set_config`).
 CREATE POLICY tenant_isolation ON ledger.accounts
     USING (env_id = current_setting('app.env_id', true)::uuid);

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Balance-transaction handlers — the double-entry posting engine.
+//! Balance-transaction handlers - the double-entry posting engine.
 //!
 //! The pre-write validation (§2 of the DDD): a posting debits one balance
 //! and credits another of the SAME currency; any imbalance or currency
@@ -28,7 +28,7 @@ pub struct ListTransactionsQuery {
     pub balance_id: Option<Uuid>,
 }
 
-/// `POST /v1/balance-transactions` — post one double-entry movement.
+/// `POST /v1/balance-transactions` - post one double-entry movement.
 ///
 /// The money path: BEGIN → tenant context → idempotency check →
 /// currency/currency validation → row-lock both balances → append the
@@ -42,7 +42,7 @@ pub struct ListTransactionsQuery {
     responses(
         (status = 200, description = "Transaction posted", body = BalanceTransaction),
         (status = 403, description = "Missing bill8:ledger:balance-transactions:write"),
-        (status = 422, description = "Imbalanced/currency-mismatch — nothing written"),
+        (status = 422, description = "Imbalanced/currency-mismatch - nothing written"),
     ),
     security(("bill8:ledger:balance-transactions:write" = [])),
     tag = "ledger",
@@ -144,7 +144,7 @@ pub async fn post_transaction(
     .await
     .map_err(err_db)?;
 
-    // Mutate both balance rows (locked — serialized per balance).
+    // Mutate both balance rows (locked - serialized per balance).
     sqlx::query(
         "UPDATE ledger.balances SET amount = amount - $1, updated_at = now() WHERE id = $2",
     )
@@ -186,7 +186,7 @@ pub async fn post_transaction(
     Ok(Json(row_to_tx(&inserted)))
 }
 
-/// `GET /v1/balance-transactions` — list movements (optionally by balance).
+/// `GET /v1/balance-transactions` - list movements (optionally by balance).
 #[utoipa::path(
     get,
     path = "/v1/balance-transactions",
@@ -241,14 +241,14 @@ pub(crate) struct LockedBalance {
     pub(crate) amount: Decimal,
 }
 
-/// In-transaction posting — the double-entry core shared by the HTTP path
+/// In-transaction posting - the double-entry core shared by the HTTP path
 /// and internal callers (transfers, destination-charge splits). The caller
 /// owns the transaction (BEGIN/tenant-context/COMMIT); this function only
 /// validates and writes, so a rejection never leaves partial state.
 ///
 /// # Errors
 /// Returns `422`-class domain errors on imbalance, currency mismatch, or
-/// insufficient funds — with NOTHING written on the caller's connection.
+/// insufficient funds - with NOTHING written on the caller's connection.
 #[allow(clippy::too_many_arguments)]
 pub(crate) async fn post_transaction_in_tx(
     conn: &mut sqlx::PgConnection,

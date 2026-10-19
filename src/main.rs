@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Bill8:Ledger binary — boots on the platform `sentin8::shell`.
+//! Bill8:Ledger binary - boots on the platform `sentin8::shell`.
 //! See `services/ledger/DESIGN.md` for the detailed design.
 
 // arenas fragment under the many-worker tokio runtime and never return

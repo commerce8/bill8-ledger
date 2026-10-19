@@ -1,4 +1,4 @@
-# Bill8:Ledger — Money Engine
+# Bill8:Ledger - Money Engine
 
 The double-entry money engine: balances, balance transactions, payouts,
 transfers, and the fee model.
@@ -30,12 +30,12 @@ graph TD
 
 ## 4. Key Traits and Data Structures
 
-- `Balance` — a named money position per account (`available`, `pending`,
+- `Balance` - a named money position per account (`available`, `pending`,
   `connected_reserved`, `platform_fee`).
-- `BalanceTransaction` — an append-only double-entry movement debiting one
+- `BalanceTransaction` - an append-only double-entry movement debiting one
   balance and crediting another.
-- `Payout` — a movement of available balance to an external account.
-- `Transfer` — an internal movement between connected accounts.
+- `Payout` - a movement of available balance to an external account.
+- `Transfer` - an internal movement between connected accounts.
 
 ## 5. Rationale, Trade-offs, and Alternatives
 
@@ -43,7 +43,7 @@ graph TD
   prove conservation; double-entry makes every batch verifiable.
 - **Fee model in-ledger**: platform fees are captured as explicit
   balance transactions, so revenue is provable.
-- **Rejected**: distributed multi-ledger — a single authority per
+- **Rejected**: distributed multi-ledger - a single authority per
   vertical keeps atomicity simple.
 
 ## 6. Internal Implementation & Invariants

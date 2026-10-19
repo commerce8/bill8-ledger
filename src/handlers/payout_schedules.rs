@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Payout-schedule handlers (LED-7) — automatic payouts via the
+//! Payout-schedule handlers (LED-7) - automatic payouts via the
 //! Sentin8:Cron proxy-back run. At most one payout per schedule tick;
 //! every payout obeys the available-balance guard (LED-3's rules).
 
@@ -43,7 +43,7 @@ pub struct PayoutScheduleResponse {
     pub enabled: bool,
 }
 
-/// `POST /v1/payout-schedules` — create an automatic payout schedule.
+/// `POST /v1/payout-schedules` - create an automatic payout schedule.
 #[utoipa::path(
     post,
     path = "/v1/payout-schedules",
@@ -119,7 +119,7 @@ pub async fn create_payout_schedule(
     Ok(Json(row_to_schedule(&row)))
 }
 
-/// `GET /v1/payout-schedules` — list schedules.
+/// `GET /v1/payout-schedules` - list schedules.
 #[utoipa::path(
     get,
     path = "/v1/payout-schedules",
@@ -158,7 +158,7 @@ pub async fn list_payout_schedules(
     Ok(Json(rows.iter().map(row_to_schedule).collect()))
 }
 
-/// `DELETE /v1/payout-schedules/{id}` — disable a schedule.
+/// `DELETE /v1/payout-schedules/{id}` - disable a schedule.
 #[utoipa::path(
     delete,
     path = "/v1/payout-schedules/{id}",
@@ -205,7 +205,7 @@ pub async fn delete_payout_schedule(
     Ok(Json(serde_json::json!({ "status": "disabled" })))
 }
 
-/// `POST /v1/internal/payout-schedules/run` — the Cron proxy-back tick.
+/// `POST /v1/internal/payout-schedules/run` - the Cron proxy-back tick.
 /// Creates a payout for each enabled schedule whose available balance
 /// meets its minimum. At most one payout per tick (the balance guard
 /// itself enforces it: the available row lock serializes).

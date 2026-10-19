@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Payout handlers — withdrawals to external accounts.
+//! Payout handlers - withdrawals to external accounts.
 //!
 //! State machine (ledger DESIGN.md §3): `pending → paid | failed`;
 //! terminal states never regress. A payout never exceeds the available
@@ -22,7 +22,7 @@ use crate::handlers::transactions::{fetch_balance_for_update, map_domain};
 use crate::handlers::{err_db, set_tenant_context, AppState};
 use crate::types::LedgerError;
 
-/// `POST /v1/payouts` — pay out available balance to an external account.
+/// `POST /v1/payouts` - pay out available balance to an external account.
 #[utoipa::path(
     post,
     path = "/v1/payouts",
@@ -30,7 +30,7 @@ use crate::types::LedgerError;
     responses(
         (status = 200, description = "Payout created (pending)", body = Payout),
         (status = 403, description = "Missing bill8:ledger:payouts:write"),
-        (status = 422, description = "Insufficient available balance — nothing written"),
+        (status = 422, description = "Insufficient available balance - nothing written"),
     ),
     security(("bill8:ledger:payouts:write" = [])),
     tag = "ledger",
@@ -181,7 +181,7 @@ pub async fn create_payout(
     Ok(Json(row_to_payout(&row)))
 }
 
-/// `GET /v1/payouts` — list payouts.
+/// `GET /v1/payouts` - list payouts.
 #[utoipa::path(
     get,
     path = "/v1/payouts",
@@ -221,7 +221,7 @@ pub async fn list_payouts(
     Ok(Json(rows.iter().map(row_to_payout).collect()))
 }
 
-/// `GET /v1/payouts/{id}` — read one payout.
+/// `GET /v1/payouts/{id}` - read one payout.
 #[utoipa::path(
     get,
     path = "/v1/payouts/{id}",

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Balance handlers — named per-currency money positions.
+//! Balance handlers - named per-currency money positions.
 
 use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, StatusCode};
@@ -17,7 +17,7 @@ use crate::auth;
 use crate::handlers::{err_db, set_tenant_context, AppState};
 use crate::types::ListBalancesQuery;
 
-/// `GET /v1/balances` — list balances (optionally filtered).
+/// `GET /v1/balances` - list balances (optionally filtered).
 #[utoipa::path(
     get,
     path = "/v1/balances",
@@ -78,7 +78,7 @@ pub async fn list_balances(
     ))
 }
 
-/// `GET /v1/balances/{id}` — read one balance.
+/// `GET /v1/balances/{id}` - read one balance.
 #[utoipa::path(
     get,
     path = "/v1/balances/{id}",

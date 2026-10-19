@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Bill8:Ledger
 // SPDX-License-Identifier: Apache-2.0
 
-//! Axum server setup for Bill8:Ledger — state binding + routes.
+//! Axum server setup for Bill8:Ledger - state binding + routes.
 
 use axum::routing::get;
 use std::sync::Arc;
@@ -14,7 +14,7 @@ use crate::handlers;
 /// auth DESIGN §4.3f): mint-or-load the Acme-issued pair and wrap it
 /// in a reqwest client. The receiving service's TLS layer authenticates
 /// the handshake and the enroll-published registry map authorizes the
-/// scopes — no bearer token exists on this path.
+/// scopes - no bearer token exists on this path.
 ///
 /// # Errors
 /// Returns the certificate-ensure or transport-build failure (the
@@ -42,7 +42,7 @@ pub async fn build_state(core: sentin8::shell::ServiceCore) -> anyhow::Result<ha
     let mut config = crate::config::LedgerConfig::from_env();
 
     // Cert-presenting Bus client (CERTFREE-4V): the `ledger` workload
-    // CERTIFICATE is the identity — no DCR, no token (auth DESIGN
+    // CERTIFICATE is the identity - no DCR, no token (auth DESIGN
     // §4.3f); the mint retries while the fleet boots.
     let bus_client = loop {
         match sentin8::bus::client::BusClient::for_workload(
@@ -61,15 +61,15 @@ pub async fn build_state(core: sentin8::shell::ServiceCore) -> anyhow::Result<ha
     };
 
     // The service's own workload transport (CERTFREE-4V): the
-    // `ledger` certificate presents in the TLS handshake — the
+    // `ledger` certificate presents in the TLS handshake - the
     // receiving service's TLS layer authenticates it and the registry
     // map authorizes the scopes.
     match build_workload_http(&config.sentin8_auth_issuer, "ledger").await {
         Ok(http) => config.m2m_http = Some(http),
-        Err(e) => tracing::warn!(error = %e, "ledger workload transport unavailable — degraded"),
+        Err(e) => tracing::warn!(error = %e, "ledger workload transport unavailable - degraded"),
     }
 
-    // The Shield engine is shell-booted (step 8); copy it into state —
+    // The Shield engine is shell-booted (step 8); copy it into state -
     // no second engine or consumer here (policy design §4.2b).
     let policy_engine = core.admin.policy.clone();
 
@@ -81,7 +81,7 @@ pub async fn build_state(core: sentin8::shell::ServiceCore) -> anyhow::Result<ha
     })
 }
 
-/// Mount the ledger's routes onto the shell router (state-typed — the
+/// Mount the ledger's routes onto the shell router (state-typed - the
 /// shell binds `AppState` when serving).
 pub fn routes(router: axum::Router<handlers::AppState>) -> axum::Router<handlers::AppState> {
     router

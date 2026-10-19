@@ -26,10 +26,10 @@ pub struct LedgerConfig {
     /// Stream family this service produces to.
     pub stream_family: String,
     /// Shared Auth client (discovery + JWKS caches reused across
-    /// requests; cloning is cheap — caches live behind an `Arc`).
+    /// requests; cloning is cheap - caches live behind an `Arc`).
     pub sentin8_auth_client: AuthClient,
     /// Certificate-presenting transport for the service's own workload
-    /// identity (CERTFREE-4V — no M2M token exists). Set at startup by
+    /// identity (CERTFREE-4V - no M2M token exists). Set at startup by
     /// `server::build_state`; `None` until then.
     pub m2m_http: Option<reqwest::Client>,
 }
