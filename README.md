@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../../LICENSE)
 [![Built with Rust](https://img.shields.io/badge/Built%20with-Rust-orange.svg)](https://www.rust-lang.org/)
-[![Docs](https://img.shields.io/badge/docs/read-3aa757.svg)](https://bill8.dev/docs/products/ledger)
+[![Docs](https://img.shields.io/badge/docs/read-3aa757.svg)](https://bill8.dev/docs/services/ledger)
 [![Website](https://img.shields.io/badge/website-bill8.dev-1a73e8.svg)](https://bill8.dev)
 
 The double-entry money engine: balances, balance transactions, payouts,
